@@ -17,7 +17,7 @@ export const getOrder = async (request:Request, response:Response)=>{
         return response.status(200).json({message:"fetched requested data successfully", response:a})
     }
     else if(fieldname && columnname){
-        let filteredData = await (await connect).query(`SELECT * FROM [ecommerceDb].[dbo].[Order] WHERE [${columnname}] LIKE '${fieldname}'`)
+        let filteredData = await (await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[Order] WHERE [${columnname}] LIKE '${fieldname}'`)
         console.log(filteredData)
         return response.status(200).json({message:"fetched requested data successfully", response:filteredData})
     }
