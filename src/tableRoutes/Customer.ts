@@ -81,7 +81,7 @@ export const updateACustomer = async(request:Request, response:Response)=>{
     let id:string = request.params.id;
     let result_id = await (await connect).query(`select * from [ecommerceDb1].[dbo].[Customer] where Id=${id}`);
     if (!result_id[0]){
-        return response.send("please enter a valid id number")
+        return response.status(404).json({message:"please enter a valid id number"})
     } 
     else{
         let FirstName = request.body.FirstName ? request.body.FirstName : result_id[0].FirstName;
@@ -107,6 +107,6 @@ export const deleteACustomer = async (request: Request, response: Response) =>{
         return response.status(200).json({message: 'post deleted successfully', response: deletedColumn})
     }
     else{
-        return response.send(" Please enter a valid id number ")
+        return response.status(404).json({message:" Please enter a valid id number "})
     }
 }
