@@ -6,7 +6,7 @@ import { getSupplier, getOneSupplier, insertIntoSupplier, updateAsupplier, delet
 import { getProduct, getOneProduct, insertIntoProduct, updateAProduct, deleteAProduct } from "./tableRoutes/Product";
 import { getOrderItem, getOneOrderItem, insertIntoOrderItem, updateOrderItem, deleteAOrderItem } from "./tableRoutes/OrderItem";
 import { getOrder, getOneOrder, insertIntoOrder, updateAnOrder, deleteAnOrder } from "./tableRoutes/Order"; 
-import { validateCustomer } from "./features/newFeatures";
+import { deleteCompleteAccount, validateCustomer } from "./features/newFeatures";
 
 
 
@@ -90,4 +90,6 @@ app.get("/Customer/validate/:phone", validateCustomer)
 
 
 
+//delete an account
 
+app.delete("/deleteAccount/:id", deleteCompleteAccount)
