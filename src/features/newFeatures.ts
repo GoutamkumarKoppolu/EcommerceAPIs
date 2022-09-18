@@ -11,3 +11,25 @@ export const validateCustomer = async(request: Request, response: Response) =>{
         return response.status(404).json({message:"Customer not found, Please enroll yourself"})
     }
 }
+
+export const deleteCompleteAccount = async(request: Request, response: Response) => {
+
+    let Id = request.params.id
+
+    let isCustomer = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[Customer] WHERE id = '${Id}'`)
+    if (!isCustomer[0]){
+        return response.status(404).json({message:"the customer you are finding is not available"})
+    }
+    else{
+        let deleteOrder = await (await connect).query(`SELECT [Id] FROM [ecommerceDb1].[dbo].[Order] WHERE CustomerId = ${Id}`)
+        for(let i=0;i<deleteOrder.length;i++){
+            let deletableOrder = await (await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[Order] WHERE CustomerId = ${deleteOrder[i].Id}`)
+        }
+        for(let i=0;i<deleteOrder.length;i++){
+            let deleteOrderItem = await (await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${deleteOrder[i].Id}`)
+        }
+       let deletableCustomer = await(await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[Customer] WHERE Id = '${Id}'`)
+       return response.status(200).json({message:"selected data deleted", response: deleteOrder})
+
+}
+}
