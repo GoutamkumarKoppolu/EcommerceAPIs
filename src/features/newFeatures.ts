@@ -29,7 +29,35 @@ export const deleteCompleteAccount = async(request: Request, response: Response)
             let deleteOrderItem = await (await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${deleteOrder[i].Id}`)
         }
        let deletableCustomer = await(await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[Customer] WHERE Id = '${Id}'`)
-       return response.status(200).json({message:"selected data deleted", response: deleteOrder})
+       return response.status(200).json({message:"selected accounts and their data has been removed completely"})
 
 }
+}
+
+export const getItemsfromOrder =async (request:Request, response: Response) => {
+
+    let customerOrderId = request.params.orderId
+    let verifyOrderNumber = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${customerOrderId} `)
+
+    if(!verifyOrderNumber[0]){
+        return response.status(404).json({message: "Order Id you are searching doesn't exist "})
+    }
+    else{
+        let getOrders = await(await connect).query(`SELECT [ProductId]
+        ,[UnitPrice]
+        ,[Quantity] FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${customerOrderId}`)
+        let productNames = []
+        for(let i=0; i < getOrders.length; i ++){
+            let orderedProductNames = await(await connect).query(`SELECT [ProductName] FROM [ecommerceDb1].[dbo].[Product] WHERE Id = ${getOrders[i].ProductId}`)
+            productNames.push(orderedProductNames)            
+        }
+        let completeDict = {}
+        let completeList = []
+        for(let i=0; i < getOrders.length; i++){
+            completeDict = {"ProductName":productNames[i][0].ProductName, "ProductId": getOrders[i].ProductId, "Quantity": getOrders[i].Quantity, 
+            "UnitPrice": getOrders[i].UnitPrice}
+            completeList.push(completeDict)
+        }
+        return response.status(200).json({message: "Orders with order id found", response: completeList})
+    } 
 }
