@@ -2,6 +2,7 @@ import {connect} from "../connection/connection"
 import { Request, Response } from "express"
 
 export const validateCustomer = async(request: Request, response: Response) =>{
+
     let phone = request.params.phone
     let isCusomer = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[Customer] WHERE Phone = '${phone}' `)
     if (isCusomer[0]){
@@ -15,14 +16,13 @@ export const validateCustomer = async(request: Request, response: Response) =>{
 export const deleteCompleteAccount = async(request: Request, response: Response) => {
 
     let Id = request.params.id
-
     let isCustomer = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[Customer] WHERE id = '${Id}'`)
     if (!isCustomer[0]){
         return response.status(404).json({message:"the customer you are finding is not available"})
     }
     else{
         let deleteOrder = await (await connect).query(`SELECT [Id] FROM [ecommerceDb1].[dbo].[Order] WHERE CustomerId = ${Id}`)
-        for(let i=0;i<deleteOrder.length;i++){
+        for(let i=0;i<deleteOrder.length;i++){           
             let deletableOrder = await (await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[Order] WHERE CustomerId = ${deleteOrder[i].Id}`)
         }
         for(let i=0;i<deleteOrder.length;i++){
@@ -30,7 +30,6 @@ export const deleteCompleteAccount = async(request: Request, response: Response)
         }
        let deletableCustomer = await(await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[Customer] WHERE Id = '${Id}'`)
        return response.status(200).json({message:"selected accounts and their data has been removed completely"})
-
 }
 }
 
@@ -38,7 +37,6 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
 
     let customerOrderId = request.params.orderId
     let verifyOrderNumber = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${customerOrderId} `)
-
     if(!verifyOrderNumber[0]){
         return response.status(404).json({message: "Order Id you are searching doesn't exist "})
     }
@@ -64,9 +62,9 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
 
 
 export const deleteFromCart = async(request: Request, response: Response) => {
+
     let isValidId = request.query.orderid
     let productItems = request.query.productItems
-
     let totalAmount = await(await connect).query(`SELECT [TotalAmount] FROM [ecommerceDb1].[dbo].[Order] WHERE Id = ${isValidId}`)
     if (!totalAmount[0]){
         return response.status(404).json({message: "the ID number you entered is incorrect, please enter a valid id number"})
