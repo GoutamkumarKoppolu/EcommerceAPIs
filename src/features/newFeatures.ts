@@ -61,3 +61,31 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
         return response.status(200).json({message: "Orders with order id found", response: completeList})
     } 
 }
+
+
+export const deleteFromCart = async(request: Request, response: Response) => {
+    let isValidId = request.query.orderid
+    let productItems = request.query.productItems
+
+    let totalAmount = await(await connect).query(`SELECT [TotalAmount] FROM [ecommerceDb1].[dbo].[Order] WHERE Id = ${isValidId}`)
+    if (!totalAmount[0]){
+        return response.status(404).json({message: "the ID number you entered is incorrect, please enter a valid id number"})
+    }
+    else if(totalAmount <= 0){
+        return response.status(404).json({message: "Your cart Amount is empty, you didnt selected any products."})
+    }
+    else{
+        let removableProduct =  await(await connect).query(`SELECT [UnitPrice], [Quantity], [productId] FROM [ecommerceDb1].[dbo].[OrderItem] 
+        WHERE OrderId = ${isValidId} AND ProductId = ${productItems}`)
+        if(!removableProduct[0]){
+            return response.status(404).json({message: "Your cart doesnt contain the product with provided product ID."})
+        }
+        else{
+            let removableAmount = Math.floor(removableProduct[0].UnitPrice * removableProduct[0].Quantity)
+            let differenceAmount = Math.floor(totalAmount[0].TotalAmount - removableAmount)
+            let removeProduct = await(await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${isValidId} AND ProductId = ${productItems}`)
+            let updateTotalAmount = await(await connect).query(`UPDATE [ecommerceDb1].[dbo].[Order] SET TotalAmount = ${differenceAmount} WHERE Id = ${isValidId}`)
+            return response.status(200).json({message: "We have removed the item from the cart successfully. please find the updated amount", response: differenceAmount})
+        }
+    }
+}
