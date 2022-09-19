@@ -42,7 +42,7 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
     }
     else{
         let getPrice = await(await connect).query(`SELECT [TotalAmount] FROM [ecommerceDb1].[dbo].[Order] WHERE Id = ${customerOrderId}`)
-        // console.log(getPrice)
+
         let getOrders = await(await connect).query(`SELECT [ProductId]
         ,[UnitPrice]
         ,[Quantity] FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${customerOrderId}`)
@@ -54,8 +54,9 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
         let completeDict = {}
         let completeList = []
         for(let i=0; i < getOrders.length; i++){
+            let amnt = (getOrders[i].Quantity * getOrders[i].UnitPrice)
             completeDict = {"ProductName":productNames[i][0].ProductName, "ProductId": getOrders[i].ProductId, "Quantity": getOrders[i].Quantity, 
-            "UnitPrice": getOrders[i].UnitPrice}
+            "UnitPrice": getOrders[i].UnitPrice, "Amount": amnt}
             completeList.push(completeDict)
             if (i === (getOrders.length)-1){
                 let TotalBill = {"Total Bill for the order" : getPrice[0].TotalAmount}
