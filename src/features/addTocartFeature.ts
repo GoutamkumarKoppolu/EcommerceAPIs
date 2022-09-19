@@ -94,9 +94,10 @@ export const addToCart = async(request: Request, response: Response)=>{
             // console.log(orderId)
             // console.log(items[i].Product)
             // console.log(productRate[i].UnitPrice)
+            
             if(productRate[0]){
                 let addNewProducts = await(await connect).query(`insert into [ecommerceDb1].[dbo].[OrderItem] ([OrderId], [ProductId], 
-                    [UnitPrice], [Quantity]) values(${orderId},${items[i].Product},${productRate[i].UnitPrice}, ${items[i].Quantity})`)
+                    [UnitPrice], [Quantity]) values(${orderId},${items[i].Product},${productRate[0].UnitPrice}, ${items[i].Quantity})`)
                 let cartAddedProducts = await(await connect).query(`select * from [eCommerceDb1].[dbo].[OrderItem] 
                 where OrderId = ${orderId} and
                  ProductId=${items[i].Product}`)
