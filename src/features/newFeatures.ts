@@ -41,6 +41,8 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
         return response.status(404).json({message: "Order Id you are searching doesn't exist "})
     }
     else{
+        let getPrice = await(await connect).query(`SELECT [TotalAmount] FROM [ecommerceDb1].[dbo].[Order] WHERE Id = ${customerOrderId}`)
+        // console.log(getPrice)
         let getOrders = await(await connect).query(`SELECT [ProductId]
         ,[UnitPrice]
         ,[Quantity] FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${customerOrderId}`)
