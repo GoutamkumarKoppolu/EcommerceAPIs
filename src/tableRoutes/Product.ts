@@ -4,6 +4,7 @@ import { connect } from "../connection/connection"
 
 
 export const getProduct = async (request:Request, response:Response) => {
+    
     let offset = request.query.offset
     let next = request.query.next
     let fieldname= request.query.fieldname
@@ -28,13 +29,13 @@ export const getProduct = async (request:Request, response:Response) => {
     }
     else if (!offset || !next){
         return response.status(404).json({message:" you might have provided only one value instead of two. Please provide offset as well as next values"})
-    }
-    
+    }  
     else{return response.status(404).json({message:"please choose between the respected values"})}
 }
 
 //get one
 export const getOneProduct = async(request:Request, response:Response) =>{
+
     let id = request.params.id
     let a = await (await connect).query(`select * from [ecommerceDb1].[dbo].[Product] where Id =${id}`)
     if (a[0]){
@@ -43,12 +44,12 @@ export const getOneProduct = async(request:Request, response:Response) =>{
     else{
         return response.status(404).json({message:"Invalid ID number, Please search with a valid ID number"})
     }
-
 }
 
 
 //insert a record
 export const insertIntoProduct = async (request: Request, response: Response)=>{
+
     const newProduct = {
         ProductName: request.body.productname,
         SupplierId: request.body.supplierid,
@@ -59,12 +60,10 @@ export const insertIntoProduct = async (request: Request, response: Response)=>{
     if(newProduct.ProductName && newProduct.SupplierId && newProduct.IsDiscontinued){
         let a = await (await connect).query(`insert into [ecommerceDb1].[dbo].[Product] ([ProductName], [SupplierId], 
             [UnitPrice], [Package], [IsDiscontinued]) values('${newProduct.ProductName}',
-            ${newProduct.SupplierId},${newProduct.UnitPrice}, '${newProduct.Package}','${newProduct.IsDiscontinued}')`)
-        
+            ${newProduct.SupplierId},${newProduct.UnitPrice}, '${newProduct.Package}','${newProduct.IsDiscontinued}')`)     
         let newProd = await (await connect).query(`select *  from [Product] where ProductName='${newProduct.ProductName}' 
         and SupplierId = ${newProduct.SupplierId}  
-        and UnitPrice=${newProduct.UnitPrice} and Package='${newProduct.Package}' and IsDiscontinued ='${newProduct.IsDiscontinued}'`);
-                        
+        and UnitPrice=${newProduct.UnitPrice} and Package='${newProduct.Package}' and IsDiscontinued ='${newProduct.IsDiscontinued}'`);                      
         return response.status(200).json({message:"Required details has been inserted successfully", response: newProd})
     }
     else{
@@ -77,6 +76,7 @@ export const insertIntoProduct = async (request: Request, response: Response)=>{
 
 //update a record
 export const updateAProduct = async(request:Request, response:Response) =>{
+
     let id = request.params.id;
     let result = await(await connect).query(`select top (1) * from [ecommerceDb1].[dbo].[Product] where id=${id}`);
     if (!result[0]){
@@ -90,7 +90,6 @@ export const updateAProduct = async(request:Request, response:Response) =>{
         let IsDiscontinued= request.body.IsDiscontinued?request.body.IsDiscontinued:result[0].IsDiscontinued;
         let query_response = await(await connect).query(`update [ecommerceDb1].[dbo].[Product] set ProductName='${ProductName}',
         SupplierId=${SupplierId},UnitPrice=${UnitPrice},Package='${Package}',IsDiscontinued='${IsDiscontinued}'`);
-
         let updated_data = await(await connect).query(`select * from [ecommerceDb1].[dbo].[Product] where id=${id}`);
         return response.status(200).json({message:"successfully updated data",updated_data:updated_data})
     }
@@ -98,6 +97,7 @@ export const updateAProduct = async(request:Request, response:Response) =>{
 
 //deleting a record
 export const deleteAProduct = async(request: Request, response: Response) =>{
+
     let id = request.params.id;
     let result = await (await connect).query(`select * from [ecommerceDb1].[dbo].[Product] where Id=${id}`);
     if (result[0]){

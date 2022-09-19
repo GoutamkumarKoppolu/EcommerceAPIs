@@ -6,6 +6,7 @@ import { connect } from "../connection/connection"
 //supliers method 
 
 export const getSupplier = async (request:Request, response:Response)=>{
+    
     let offset = request.query.offset
     let next = request.query.next
     let fieldname= request.query.fieldname
@@ -31,13 +32,13 @@ export const getSupplier = async (request:Request, response:Response)=>{
     else if (!offset || !next){
         return response.status(404).json({message:" you might have provided only one value instead of two. Please provide offset as well as next values"})
     }
-    
     else{return response.status(404).json({message:"please choose between the respected values"})}
 }
 
 
 //get one
 export const getOneSupplier = async(request:Request, response:Response) =>{
+
     let id = request.params.id
     let a = await (await connect).query(`select * from [ecommerceDb1].[dbo].[Supplier] where Id =${id}`)
     if (a[0]){
@@ -46,11 +47,11 @@ export const getOneSupplier = async(request:Request, response:Response) =>{
     else{
         return response.status(404).json({message:"Invalid ID number, Please search with a valid ID number"})
     }
-
 }
 
 //insert a record
 export const insertIntoSupplier = async (request: Request, response: Response)=>{
+
     const newSupplier = {
             CompanyName: request.body.companyname,
             ContactName: request.body.contactname,
@@ -83,6 +84,7 @@ export const insertIntoSupplier = async (request: Request, response: Response)=>
 
 //update a record
 export const updateAsupplier = async(request:Request, response:Response)=>{
+
     let id = request.params.id;
     let result = await(await connect).query(`select top (1) * from [ecommerceDb1].[dbo].[Supplier] where Id=${id}`);
     if (!result[0]){
@@ -99,16 +101,15 @@ export const updateAsupplier = async(request:Request, response:Response)=>{
         let query_response = await(await connect).query(`update [ecommerceDb1].[dbo].[Supplier] set CompanyName='${CompanyName}',
         ContactName='${ContactName}',
         ContactTitle='${ContactTitle}',City='${City}',Country='${Country}',Phone='${Phone}',Fax='${Fax}'`);
-
         let updated_data = await(await connect).query(`select * from [ecommerceDb1].[dbo].[Supplier] where id=${id}`);
         return response.status(200).json({message:"We have successfully updated the record",updated_data:updated_data})
     }
-
 }
 
 //delete a customer
 
 export const deleteASupplier = async(request: Request, response: Response) =>{
+
     let id = request.params.id;
     let result = await (await connect).query(`select * from [ecommerceDb1].[dbo].[Supplier] where Id=${id}`);
     if (result[0]){
