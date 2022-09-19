@@ -12,7 +12,7 @@ export const addToCart = async(request: Request, response: Response)=>{
         ,[OrderDate]
         ,[OrderNumber]
         ,[CustomerId]
-        ,[TotalAmount]
+        ,[TotalAmount], [IsCheckedOut]
         FROM [ecommerceDb1].[dbo].[Order] where CustomerId = ${CustomerId} ORDER BY OrderDate DESC`)
 
         let orderIdQueue = []
@@ -46,7 +46,7 @@ export const addToCart = async(request: Request, response: Response)=>{
             orderIdQueue.push(orderId)
         }
 
-        else if(isHavingOrderId[0] && (isHavingOrderId[0].TotalAmount === 0)){
+        else if(isHavingOrderId[0] && (isHavingOrderId[0].TotalAmount === 0) && (isHavingOrderId[0].IsCheckedOut === 1)){
             let totalAmount = 0
             let valid = true
             let autoGeneratorQueue = [1]
@@ -76,7 +76,7 @@ export const addToCart = async(request: Request, response: Response)=>{
             orderIdQueue.push(orderId)   
             
         }
-        else if(isHavingOrderId[0] && (isHavingOrderId[0].TotalAmount > 0)){
+        else if(isHavingOrderId[0] && (isHavingOrderId[0].TotalAmount > 0) && ((isHavingOrderId[0].IsCheckedOut === 0))||(isHavingOrderId[0].IsCheckedOut === null)){
             let orderId = isHavingOrderId[0].Id   
             orderIdQueue.push(orderId)
         }
