@@ -143,7 +143,7 @@ return [date.getFullYear(), mnth, day].join("-");
 
 
 export const getFullBill = async(request: Request, response: Response) => {
-    
+
     let CustomerId = request.params.Id
     
     let totalBillQueue = await(await connect).query(`Select [Id],[TOtalAmount] from [ecommerceDb1].[dbo].[Order] where CustomerId = ${CustomerId}`)
@@ -157,4 +157,24 @@ export const getFullBill = async(request: Request, response: Response) => {
     else{
         return response.status(200).json({"Complete cart amount": totalAmount[0], "Order IDs": totalBillQueue})
     }
+}
+
+export const checkOut = async(request: Request, response: Response) => {
+    let CustomerId = request.params.Id
+    
+    let totalBillQueue = await(await connect).query(`Select [Id],[TOtalAmount] from [ecommerceDb1].[dbo].[Order] where CustomerId = ${CustomerId}`)
+    let totalAmount = [0]
+    for(let i = 0; i< totalBillQueue.length; i++){
+        totalAmount[0] = totalAmount[0] + totalBillQueue[i].TOtalAmount
+    }
+    if (totalAmount[0] === 0){
+        return response.status(200).json({message: "Customer has already paid for all the orders."})
+    }
+    else{
+        let emptyTotalAMount = await(await connect).query(`UPDATE [ecommerceDb1].[dbo].[Order] SET TotalAmount = 0 where CustomerId = ${CustomerId}`)
+        let getCheckOut = await(await connect).query(`UPDATE [ecommerceDb1].[dbo].[Order] SET IsCheckedOut = 1 where CustomerId = ${CustomerId}`)
+        return response.status(200).json({"Amount Paid": totalAmount[0], "Order IDs": totalBillQueue, "Thanks for Choosing our products": "visit us Again"})
+    }
+
+
 }
