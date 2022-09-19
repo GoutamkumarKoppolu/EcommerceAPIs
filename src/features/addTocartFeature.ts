@@ -2,7 +2,10 @@ import {connect} from "../connection/connection"
 import { Request, Response } from "express"
 
 export const addToCart = async(request: Request, response: Response)=>{
+
+    let items:{Product:number,Quantity:number}[] = request.body.items;
     let CustomerId = request.body.CustomerId
+
     let isValidId = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[Customer] where Id = ${CustomerId}`)
     if(!isValidId[0]){
         return response.status(404).json({message: "The customer you are searching doesn't exist, please enroll yourself."})
@@ -76,18 +79,63 @@ export const addToCart = async(request: Request, response: Response)=>{
             orderIdQueue.push(orderId)   
             
         }
-        else if(isHavingOrderId[0] && (isHavingOrderId[0].TotalAmount > 0) && ((isHavingOrderId[0].IsCheckedOut === 0))||(isHavingOrderId[0].IsCheckedOut === null)){
-            let orderId = isHavingOrderId[0].Id   
+        else if(isHavingOrderId[0] && (isHavingOrderId[0].TotalAmount > 0) && (isHavingOrderId[0].IsCheckedOut !== 1)){
+            let isCheckingOut = await(await connect).query(`UPDATE [ecommerceDb1].[dbo].[Order] SET IsCheckedOut = 0 where Id = ${isHavingOrderId[0].Id}`)
+            let orderId = isHavingOrderId[0].Id
             orderIdQueue.push(orderId)
         }
         let orderId = orderIdQueue[0]
         orderIdQueue.pop()
-        console.log(orderId)
-        console.log(orderIdQueue)
+        let discontinuedList = []
+        let addedItemsForCart = []
+        for(let i = 0; i<items.length; i++){
+            let productRate = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[Product] WHERE Id = ${items[i].Product} and IsDiscontinued=0`)
+            // console.log(items[i].Quantity)
+            // console.log(orderId)
+            // console.log(items[i].Product)
+            // console.log(productRate[i].UnitPrice)
+            if(productRate[0]){
+                let addNewProducts = await(await connect).query(`insert into [ecommerceDb1].[dbo].[OrderItem] ([OrderId], [ProductId], 
+                    [UnitPrice], [Quantity]) values(${orderId},${items[i].Product},${productRate[i].UnitPrice}, ${items[i].Quantity})`)
+                let cartAddedProducts = await(await connect).query(`select * from [eCommerceDb1].[dbo].[OrderItem] 
+                where OrderId = ${orderId} and
+                 ProductId=${items[i].Product}`)
+                 addedItemsForCart.push(cartAddedProducts)
+            }
+            else{
+                discontinuedList.push(productRate.Id)
+            }
+        }
+        let amountCalculation = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${orderId}`)
+        
+        let amount = [0]
+        for(let i =1; i<amountCalculation.length; i++){
+            amount[0] = amount[0] + (amountCalculation[i].UnitPrice * amountCalculation[i].Quantity)
+        }
+        let changeAmount = await(await connect).query(`update [ecommerceDb1].[dbo].[Order] SET TotalAmount = ${amount[0]} where Id = ${orderId}`)
 
-
+        return response.status(200).json({
+            "customer Id": CustomerId,
+            "products": addedItemsForCart,
+            "unavailable Products Ids": discontinuedList
+        })
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function convert(str:any) {
 
