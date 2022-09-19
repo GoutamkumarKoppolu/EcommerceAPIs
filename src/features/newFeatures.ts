@@ -6,7 +6,7 @@ export const validateCustomer = async(request: Request, response: Response) =>{
     let phone = request.params.phone
     let isCusomer = await(await connect).query(`SELECT * FROM [ecommerceDb1].[dbo].[Customer] WHERE Phone = '${phone}' `)
     if (isCusomer[0]){
-        return response.status(200).json({message:"The customer you are searching for is in the database", response: isCusomer})
+        return response.status(200).json({message:"The customer you are searching for is in the database", "customer Id": isCusomer})
     }
     else{
         return response.status(404).json({message:"Customer not found, Please enroll yourself"})
@@ -62,7 +62,7 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
                 completeList.push(TotalBill)
             }
         }
-        return response.status(200).json({message: "Orders with order id found", response: completeList})
+        return response.status(200).json({message: "Orders with order id found", "products": completeList})
     } 
 }
 
@@ -89,7 +89,8 @@ export const deleteFromCart = async(request: Request, response: Response) => {
             let differenceAmount = Math.floor(totalAmount[0].TotalAmount - removableAmount)
             let removeProduct = await(await connect).query(`DELETE FROM [ecommerceDb1].[dbo].[OrderItem] WHERE OrderId = ${isValidId} AND ProductId = ${productItems}`)
             let updateTotalAmount = await(await connect).query(`UPDATE [ecommerceDb1].[dbo].[Order] SET TotalAmount = ${differenceAmount} WHERE Id = ${isValidId}`)
-            return response.status(200).json({message: "We have removed the item from the cart successfully. please find the updated amount", response: differenceAmount})
+            return response.status(200).json({message: "We have removed the item from the cart successfully. please find the updated amount", "Current Balance": differenceAmount})
         }
     }
 }
+

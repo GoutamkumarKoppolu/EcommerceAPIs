@@ -7,6 +7,7 @@ import { getProduct, getOneProduct, insertIntoProduct, updateAProduct, deleteAPr
 import { getOrderItem, getOneOrderItem, insertIntoOrderItem, updateOrderItem, deleteAOrderItem } from "./tableRoutes/OrderItem";
 import { getOrder, getOneOrder, insertIntoOrder, updateAnOrder, deleteAnOrder } from "./tableRoutes/Order"; 
 import { deleteCompleteAccount, deleteFromCart, getItemsfromOrder, validateCustomer } from "./features/newFeatures";
+import { addToCart} from "./features/addTocartFeature"
 
 
 
@@ -99,3 +100,7 @@ app.get("/getOrders/:orderId", getItemsfromOrder)
 //deletefromcart
 
 app.delete("/deleteFromCart", deleteFromCart)
+
+// add to cart
+
+app.post("/addToCart", addToCart)
