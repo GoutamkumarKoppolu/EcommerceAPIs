@@ -57,6 +57,10 @@ export const getItemsfromOrder =async (request:Request, response: Response) => {
             completeDict = {"ProductName":productNames[i][0].ProductName, "ProductId": getOrders[i].ProductId, "Quantity": getOrders[i].Quantity, 
             "UnitPrice": getOrders[i].UnitPrice}
             completeList.push(completeDict)
+            if (i === (getOrders.length)-1){
+                let TotalBill = {"Total Bill for the order" : getPrice[0].TotalAmount}
+                completeList.push(TotalBill)
+            }
         }
         return response.status(200).json({message: "Orders with order id found", response: completeList})
     } 
